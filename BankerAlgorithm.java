@@ -1,5 +1,5 @@
 import java.util.*;
- class TreeNode {
+class TreeNode {
     int pro;
     ArrayList<Integer> Max = null;
     ArrayList<Integer> allo = null;
@@ -39,8 +39,6 @@ public class Banker {
         for (int j = 0; j < recNum; j++) {
             avai.add(sc.nextInt());
         }
-
-
         for (int i = 0; i < proNum; i++) {
             ArrayList<Integer> alo = new ArrayList();
             ArrayList<Integer> ned = new ArrayList();
@@ -64,10 +62,10 @@ public class Banker {
             pAll.add(tmp);
         }
         System.out.println("录入完成");
-       // display(pAll);
+
         return;
     }
-    private static void menu(ArrayList <TreeNode>pAll,ArrayList<Integer> avai,int proNum,int recNum){
+    private static void menu(ArrayList <TreeNode>pAll, ArrayList<Integer> avai, int proNum, int recNum){
         System.out.println("请输入要执行的操作");
         System.out.println("--------------------------------------");
         System.out.println("-----------1.安全性检测---------------");
@@ -81,23 +79,29 @@ public class Banker {
             choice = sc.nextInt();
             switch (choice){
                 case 1:safeCheck(pAll,avai,proNum,recNum);
-                break;
-                case 2:
-                    System.out.println("请输入要分配资源进程的编号");
-                    int proid = sc.nextInt();
-                    System.out.println("请输入要分配的资源");
-                    ArrayList<Integer> Req = new ArrayList<>();
-                    for(int i = 0;i<recNum;i++){
-                        Req.add(sc.nextInt());
-                    }
-                    banksAlgorithmCheck(pAll,avai,proNum,recNum,proid,Req);
+                    display(pAll,proNum,recNum,avai);
                     break;
-                case 3:exit = true;
-                break;
+                case 2:
+
+                    int ret = banksAlgorithmCheck(pAll,avai,proNum,recNum);
+                    if (ret < 0 ){
+                        System.out.println("所需资源数超过宣布的最大值");
+                    }else if(ret ==0){
+                        System.out.println("无足够资源");
+                    }else if(ret == 1){
+                        System.out.println("分配成功");
+                    }
+                    else{
+                        System.out.println("分配失败");
+                    }
+                    display(pAll,proNum,recNum,avai);
+                    break;
+                case 0:exit = true;
+                    break;
             }
         }
     }
-    private static int safeCheck(ArrayList<TreeNode> pAll,ArrayList<Integer> avai,int proNum,int recNum){
+    private static int safeCheck(ArrayList<TreeNode> pAll, ArrayList<Integer> avai, int proNum, int recNum){
         ArrayList<Integer> work = new ArrayList<>();
         ArrayList<TreeNode> setpAll = pAll;
         copy(avai,work);
@@ -128,19 +132,32 @@ public class Banker {
                 }
             }
             breakCount++;
-            for (int i = 0; i <proNum ; i++) {
-                setpAll.get(i).Finish = false;
-            }
+
+        }
+        for (int i = 0; i <proNum ; i++) {
+            setpAll.get(i).Finish = false;
         }
         if (count>=proNum){
             System.out.println("存在安全序列");
             System.out.print("安全序列为：");
             for (int i = 0;i<safeOrder.size();i++){
                 System.out.print(safeOrder.get(i)+", ");
-                return 1;
+
             }
+            System.out.println("");
+            return 1;
         }
-        System.out.println("无安全序列");return 0;
+        //      3 2
+//        8 6
+//        0 2
+//        7 5
+//        6 4
+//        4 2
+//        3 0
+//        10 8 p1 22
+//                p0  21
+        System.out.println("无安全序列");
+        return 0;
     }
     private static void copy(ArrayList<Integer> src,ArrayList<Integer> dist){
         for (int i = 0; i <src.size() ; i++) {
@@ -148,45 +165,95 @@ public class Banker {
         }
         return;
     }
-    private static int banksAlgorithmCheck(
-            ArrayList<TreeNode> pAll,ArrayList<Integer> avai,
-            int proNum,int recNum,int proid,ArrayList<Integer> Req){
+    private static int banksAlgorithmCheck(ArrayList<TreeNode> pAll, ArrayList<Integer> avai,
+                                           int proNum, int recNum){
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("请输入要分配资源进程的编号");
+        int proid = sc.nextInt();
+        System.out.println("请输入要分配的资源");
+        ArrayList<Integer> Req = new ArrayList<>();
+        for(int i = 0;i<recNum;i++){
+            Req.add(sc.nextInt());
+        }
         for (int i = 0; i <recNum ; i++) {
-            if (Req.get(i)>pAll.get(i).need.get(i)){
+            if (Req.get(i)>pAll.get(proid).need.get(i)){
                 return -1;
             }
-            if (Req.get(i)>pAll.get(i).allo.get(i)){
+
+        }
+        for (int i = 0; i <recNum ; i++) {
+            if (Req.get(i)>avai.get(i)){
                 return 0;
             }
-            ArrayList<Integer> tempavil = new ArrayList<>();
-            ArrayList<TreeNode>temppAll = new ArrayList<>();
-            copypAll(pAll,temppAll,Req,proid);
-            for (int j = 0;j<recNum;j++){
-                tempavil.add(avai.get(i)-Req.get(i));
-            }
-            int ret = safeCheck(temppAll,tempavil,proNum,recNum);
-            if (ret == 1){
-                pAll = temppAll;
-                avai = tempavil;
-                return 1;
-            }
         }
-        return 0;
-    }
-    private static void copypAll(ArrayList<TreeNode> src,ArrayList<TreeNode> dist,ArrayList <Integer>Req,int proid ){
-        for (int i = 0; i <src.size() ; i++) {
-            dist.add(src.get(i));
-            if (proid != i){
-                dist.get(i).allo.add(src.get(i).allo.get(i));
-                dist.get(i).need.add(src.get(i).need.get(i));
-            }else {
-                dist.get(i).allo.add(src.get(i).allo.get(i)+Req.get(i));
-                dist.get(i).need.add(src.get(i).need.get(i)-Req.get(i));
+        ArrayList<Integer> tempavil = new ArrayList<>();
+        ArrayList<TreeNode>temppAll = new ArrayList<>();
+        copypAll(pAll,temppAll,Req,proid,proNum,recNum);
+        for (int j = 0;j<recNum;j++){
+            tempavil.add(avai.get(j)-Req.get(j));
+        }
+        int ret = safeCheck(temppAll,tempavil,proNum,recNum);
+        if (ret == 1){
+            for (int i = 0; i <proNum ; i++) {
+                pAll.set(i,temppAll.get(i));
+                if (i<recNum) {
+                    avai.set(i,tempavil.get(i));
+                }
+
             }
-            dist.get(i).Max.add(src.get(i).need.get(i));
-            dist.get(i).pro = src.get(i).pro;
+            return 1;
+        }else{
+            return 2;
+        }
+
+
+    }
+    private static void copypAll(ArrayList<TreeNode> src, ArrayList<TreeNode> dist, ArrayList <Integer>Req, int proid , int proNum, int recNum){
+        for (int i = 0; i <proNum ; i++) {
+            TreeNode tmp = new TreeNode(i);
+
+            ArrayList<Integer> allo = new ArrayList<>();
+            ArrayList<Integer> need = new ArrayList<>();
+            ArrayList<Integer> Max = new ArrayList<>();
+
+            for (int j = 0; j <recNum; j++) {
+                if (proid != i){
+                    allo.add(src.get(i).allo.get(j));
+                    need.add(src.get(i).need.get(j));
+                }else {
+                    allo.add(src.get(i).allo.get(j)+Req.get(j));
+                    need.add(src.get(i).need.get(j)-Req.get(j));
+                }
+                Max.add(src.get(i).need.get(j));
+
+            }tmp.Max = Max;
+            tmp.allo = allo;
+            tmp.need = need;
+            tmp.pro = i;
+            dist.add(tmp);
         }
         return;
     }
-}
+    private static void display(ArrayList<TreeNode>pAll, int proNum, int recNum, ArrayList<Integer>avai){
+        System.out.println("进程—————Max—————Allocations—————Need——————");
+        for (int m = 0; m <recNum ; m++) {
+            System.out.print(avai.get(m)+",");
+        }
+        System.out.println("");
+        for (int i = 0; i <proNum ; i++) {
+            System.out.print(pAll.get(i).pro+"—————|");
+            for (int j = 0; j <recNum ; j++) {
+                System.out.print(pAll.get(i).Max.get(j)+"—————");
+            }
+            for (int k = 0; k <recNum ; k++) {
+                System.out.print(pAll.get(i).allo.get(k)+"—————");
+            }
+            for (int l = 0; l <recNum ; l++) {
+                System.out.print(pAll.get(i).need.get(l)+"—————");
+            }
+            System.out.println("");
+        }
+    }
 
+}
