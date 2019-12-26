@@ -14,7 +14,7 @@ class TreeNode {
 }
 public class Banker {
     public static void main(String[] args) {
-        int proNum;//进程数
+        int  proNum;//进程数
         int recNum;//资源种类数
         int allRecNum;//资源总类数
 //        ArrayList allo = new ArrayList();//Allocations
@@ -195,11 +195,10 @@ public class Banker {
         }
         int ret = safeCheck(temppAll,tempavil,proNum,recNum);
         if (ret == 1){
-            for (int i = 0; i <proNum ; i++) {
-                pAll.set(i,temppAll.get(i));
-                if (i<recNum) {
-                    avai.set(i,tempavil.get(i));
-                }
+            for (int i = 0; i <recNum ; i++) {
+                avai.set(i,avai.get(i)+pAll.get(proid).allo.get(i));
+                pAll.get(proid).allo.set(i,0);
+                pAll.get(proid).need.set(i,0);
 
             }
             return 1;
@@ -225,7 +224,7 @@ public class Banker {
                     allo.add(src.get(i).allo.get(j)+Req.get(j));
                     need.add(src.get(i).need.get(j)-Req.get(j));
                 }
-                Max.add(src.get(i).need.get(j));
+                Max.add(src.get(i).Max.get(j));
 
             }tmp.Max = Max;
             tmp.allo = allo;
