@@ -196,9 +196,9 @@ public class Banker {
         int ret = safeCheck(temppAll,tempavil,proNum,recNum);
         if (ret == 1){
             for (int i = 0; i <recNum ; i++) {
-                avai.set(i,avai.get(i)+pAll.get(proid).allo.get(i));
-                pAll.get(proid).allo.set(i,0);
-                pAll.get(proid).need.set(i,0);
+                avai.set(i,avai.get(i)-Req.get(i));
+                pAll.get(proid).allo.set(i,pAll.get(proid).allo.get(i)+Req.get(i));
+                pAll.get(proid).need.set(i,pAll.get(proid).need.get(i)-Req.get(i));
 
             }
             return 1;
